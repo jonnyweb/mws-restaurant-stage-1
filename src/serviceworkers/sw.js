@@ -1,4 +1,14 @@
+import { openDb, deleteDb } from 'idb';
+
 const staticCacheName = 'mwsr1-static-v3';
+
+const dbPromise = openDb('mws-restaurants', 1, upgradeDB => {
+  switch (upgradeDB.oldVersion) {
+    case 0:
+      upgradeDB.createObjectStore('restaurants', { keyPath: 'id' });
+  }
+});
+
 const urlsToPrefetch = [
   '/',
   '/restaurant.html',
@@ -7,16 +17,6 @@ const urlsToPrefetch = [
   '/js/dbhelper.js',
   '/js/main.js',
   '/js/restaurant_info.js',
-  '/img/1.jpg',
-  '/img/2.jpg',
-  '/img/3.jpg',
-  '/img/4.jpg',
-  '/img/5.jpg',
-  '/img/6.jpg',
-  '/img/7.jpg',
-  '/img/8.jpg',
-  '/img/9.jpg',
-  '/img/10.jpg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0',
 ];
