@@ -1,7 +1,7 @@
 /**
  * Common database helper functions.
  */
-class DBHelper {
+export default class DBHelper {
   /**
    * Database URL.
    * Change this to restaurants.json file location on your server.
@@ -13,19 +13,23 @@ class DBHelper {
   /**
    * Fetch all restaurants.
    */
-  static fetchRestaurants(callback) {
-    fetch(DBHelper.DATABASE_URL, {
+  static fetchRestaurants(callback, id = null) {
+    let apiUrl = DBHelper.DATABASE_URL;
+
+    if (id) {
+      apiUrl += `/${id}`;
+    }
+
+    return fetch(apiUrl, {
       headers: {
         'Content-Type': 'application/json',
       },
     })
       .then(data => data.json())
       .then(data => {
-        console.log(data);
         callback(null, data);
       })
       .catch(e => {
-        console.log(e);
         const error = `Request failed. Returned status of ${e.status}`;
         callback(error, null);
       });
@@ -35,21 +39,7 @@ class DBHelper {
    * Fetch a restaurant by its ID.
    */
   static fetchRestaurantById(id, callback) {
-    // fetch all restaurants with proper error handling.
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        const restaurant = restaurants.find(r => r.id == id);
-        if (restaurant) {
-          // Got the restaurant
-          callback(null, restaurant);
-        } else {
-          // Restaurant does not exist in the database
-          callback('Restaurant does not exist', null);
-        }
-      }
-    });
+    return DBHelper.fetchRestaurants(callback, id);
   }
 
   /**
