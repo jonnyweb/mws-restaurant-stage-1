@@ -159,7 +159,11 @@ createRestaurantHTML = restaurant => {
   image.alt = restaurant.name;
   image.setAttribute('aria-hidden', true);
 
-  li.append(image);
+  const imageContainer = document.createElement('div');
+  imageContainer.className = 'restaurant-img-contianer';
+  imageContainer.append(image);
+
+  li.append(imageContainer);
 
   const name = document.createElement('h3');
   name.innerHTML = restaurant.name;
