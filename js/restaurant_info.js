@@ -26,7 +26,7 @@ initMap = () => {
         L.tileLayer(
           'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}',
           DBHelper.mapBoxData
-        ).addTo(newMap);
+        ).addTo(self.newMap);
       }
       fillBreadcrumb();
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);

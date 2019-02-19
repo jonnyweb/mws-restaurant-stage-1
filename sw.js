@@ -1,4 +1,4 @@
-const staticCacheName = 'mwsr1-static-v2';
+const staticCacheName = 'mwsr1-static-v3';
 const urlsToPrefetch = [
   '/',
   '/restaurant.html',
@@ -7,7 +7,6 @@ const urlsToPrefetch = [
   '/js/dbhelper.js',
   '/js/main.js',
   '/js/restaurant_info.js',
-  '/data/restaurants.json',
   '/img/1.jpg',
   '/img/2.jpg',
   '/img/3.jpg',
