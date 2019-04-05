@@ -1,7 +1,9 @@
 import DBHelper from '../shared/dbhelper';
 import registerServiceWorker from '../shared/serviceworker';
+import dateformat from 'dateformat';
 
 import '../styles.scss';
+import './restaurant.scss';
 
 registerServiceWorker();
 
@@ -56,11 +58,17 @@ const fetchRestaurantFromURL = callback => {
     DBHelper.fetchRestaurantById(id, (error, restaurant) => {
       self.restaurant = restaurant;
       if (!restaurant) {
-        console.error(error);
-        return;
+        return console.error(error);
       }
       fillRestaurantHTML();
       callback(null, restaurant);
+    });
+    DBHelper.fetchReviews(id, (error, reviews) => {
+      self.reviews = reviews;
+      if (!reviews) {
+        return console.error(error);
+      }
+      fillReviewsHTML();
     });
   }
 };
@@ -87,8 +95,6 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
-  // fill reviews
-  fillReviewsHTML();
 };
 
 /**
@@ -116,7 +122,7 @@ const fillRestaurantHoursHTML = (
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+const fillReviewsHTML = (reviews = self.reviews) => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
@@ -146,7 +152,7 @@ const createReviewHTML = review => {
 
   const date = document.createElement('p');
   date.className = 'date';
-  date.innerHTML = review.date;
+  date.innerHTML = dateformat(review.updatedAt, 'yyyy-mm-dd');
   li.appendChild(date);
 
   const rating = document.createElement('div');

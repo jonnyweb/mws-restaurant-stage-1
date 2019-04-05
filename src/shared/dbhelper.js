@@ -7,14 +7,14 @@ export default class DBHelper {
    * Change this to restaurants.json file location on your server.
    */
   static get DATABASE_URL() {
-    return 'http://localhost:1337/restaurants';
+    return 'http://localhost:1337';
   }
 
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback, id = null) {
-    let apiUrl = DBHelper.DATABASE_URL;
+    let apiUrl = `${DBHelper.DATABASE_URL}/restaurants`;
 
     if (id) {
       apiUrl += `/${id}`;
@@ -32,6 +32,26 @@ export default class DBHelper {
       .catch(e => {
         const error = `Request failed. Returned status of ${e.status}`;
         callback(error, null);
+      });
+  }
+
+  static fetchReviews(restaurantId, callback) {
+    let apiUrl = `${
+      DBHelper.DATABASE_URL
+    }/reviews/?restaurant_id=${restaurantId}`;
+
+    return fetch(apiUrl, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(data => data.json())
+      .then(data => {
+        callback(null, data);
+      })
+      .catch(e => {
+        const error = `Request failed. Returned status of ${e.status}`;
+        callback(e, null);
       });
   }
 

@@ -65,24 +65,77 @@ self.addEventListener('fetch', function(event) {
   if (apiRequest) {
     let id = parseInt(cachedUrl.pathname.split('/')[2]) || -1;
 
-    return handleApiRequest(event, id);
+    if (cachedUrl.pathname.includes('reviews')) {
+      id = parseInt(cachedUrl.searchParams.get('restaurant_id'));
+      handleApiReviewRequest(event, id);
+    } else {
+      return handleApiRestaurantRequest(event, id);
+    }
   } else {
     return handleResource(event, cachedUrl);
   }
 });
 
-function handleApiRequest(event, id) {
+function handleApiReviewRequest(event, restaurantId) {
+  event.respondWith(
+    dbPromise()
+      .then(db => {
+        return db
+          .transaction('reviews')
+          .objectStore('reviews')
+          .index('restaurant_id')
+          .getAll(restaurantId);
+      })
+      .then(data => {
+        const hasData = data && data.length > 0;
+
+        // Map indexedDb structure to normal arrays
+        if (hasData) {
+          return data.map(data => data.data);
+        }
+
+        return fetch(event.request)
+          .then(data => (data.json && data.json()) || data)
+          .then(reviewData =>
+            dbPromise().then(db => {
+              const tx = db.transaction('reviews', 'readwrite');
+              const store = tx.objectStore('reviews');
+
+              reviewData.forEach(review => {
+                store.put({
+                  id: review.id,
+                  restaurant_id: review['restaurant_id'],
+                  data: review,
+                });
+              });
+
+              return reviewData;
+            })
+          );
+      })
+      .then(finalResponse => {
+        return new Response(JSON.stringify(finalResponse), { status: 200 });
+      })
+      .catch(() => {
+        return new Response('API Server Error', { status: 500 });
+      })
+  );
+}
+
+function handleApiRestaurantRequest(event, restaurantId) {
   event.respondWith(
     dbPromise()
       .then(db => {
         const store = db.transaction('restaurants').objectStore('restaurants');
-        return id > -1 ? store.get(parseInt(id)) : store.getAll();
+        return restaurantId > -1
+          ? store.get(parseInt(restaurantId))
+          : store.getAll();
       })
       .then(data => {
         const hasData = data && (data.length > 0 || data.data);
 
         if (hasData) {
-          return id > -1 ? data.data : data.map(r => r.data);
+          return restaurantId > -1 ? data.data : data.map(r => r.data);
         }
 
         return fetch(event.request)
@@ -92,7 +145,8 @@ function handleApiRequest(event, id) {
               const tx = db.transaction('restaurants', 'readwrite');
               const store = tx.objectStore('restaurants');
 
-              const restaurants = id === -1 ? restaurantData : [restaurantData];
+              const restaurants =
+                restaurantId === -1 ? restaurantData : [restaurantData];
 
               restaurants.forEach(r => store.put({ id: r.id, data: r }));
               return restaurantData;
