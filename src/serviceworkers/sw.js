@@ -69,6 +69,12 @@ self.addEventListener('fetch', function(event) {
     let id = parseInt(cachedUrl.pathname.split('/')[2]) || -1;
 
     if (cachedUrl.pathname.includes('reviews')) {
+      if (request.method !== 'GET') {
+        return fetch(request)
+          .then(data => data.json())
+          .then(reviewData => updateReview(reviewData));
+      }
+
       id = parseInt(cachedUrl.searchParams.get('restaurant_id'));
       handleApiReviewRequest(event, id);
     } else {
@@ -128,6 +134,23 @@ function handleApiReviewRequest(event, restaurantId) {
         return new Response('API Server Error', { status: 500 });
       })
   );
+}
+
+function updateReview(reviewData) {
+  return dbPromise().then(db => {
+    const tx = db.transaction('reviews', 'readwrite');
+    const store = tx.objectStore('reviews');
+
+    reviewData.forEach(review => {
+      store.put({
+        id: review.id,
+        restaurant_id: review['restaurant_id'],
+        data: review,
+      });
+    });
+
+    return reviewData;
+  });
 }
 
 function updateRestaurant(restaurantData, restaurantId) {

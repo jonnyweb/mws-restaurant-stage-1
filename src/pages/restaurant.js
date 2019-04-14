@@ -4,7 +4,6 @@ import dateformat from 'dateformat';
 
 import '../shared/styles.scss';
 import './restaurant.scss';
-import { format } from 'util';
 
 registerServiceWorker();
 
@@ -20,17 +19,23 @@ const initReviewForm = () => {
   const form = document.getElementById('add-review-form');
   const stars = [];
   const starContainer = document.getElementById('review-rating-stars');
-  const starInput = starContainer.getElementsByTagName('input')[0];
 
+  const formName = document.getElementById('review-name');
+  const formRating = document.getElementById('review-rating');
+  const formText = document.getElementById('review-text');
+  const formError = document.getElementById('review-error');
+
+  // Add all stars to an array
   Array.from(starContainer.getElementsByTagName('a')).forEach(star => {
     stars.push(star);
   });
 
+  // Set up click listeners for all stars
   stars.forEach(star => {
     star.onclick = e => {
       e.preventDefault();
       const value = star.dataset.value;
-      starInput.setAttribute('value', value);
+      formRating.setAttribute('value', value);
 
       stars.forEach((star, idx) => {
         if (idx < value) {
@@ -42,21 +47,42 @@ const initReviewForm = () => {
     };
   });
 
+  // Default to 1 star rating
+  stars[0].dispatchEvent(new Event('click'));
+
+  // Hide Add review button when clicked
   const reviewButton = document.getElementById('add-review');
-  let toggle = false;
   reviewButton.onclick = () => {
-    toggle = !toggle;
-
-    if (!toggle) {
-      form.className = 'hidden';
-    } else {
-      form.className = '';
-    }
+    reviewButton.parentElement.removeChild(reviewButton);
   };
 
-  form.onsubmit = e => {
+  // Handle new review
+  document.getElementById('review-submit').addEventListener('click', e => {
     e.preventDefault();
-  };
+
+    if (!self.restaurant) return;
+
+    const hasFormRating =
+      formRating.value && formRating.value > 0 && formRating.value <= 5;
+
+    // Form has an error
+    if (!formName.value || !formText.value || !hasFormRating) {
+      formError.className = 'show';
+      return false;
+    }
+
+    formError.className = '';
+
+    const review = {
+      restaurant_id: self.restaurant.id,
+      name: formName.value,
+      rating: formRating.value,
+      comments: formText.value,
+    };
+
+    DBHelper.addReview(review);
+    return false;
+  });
 };
 
 /**

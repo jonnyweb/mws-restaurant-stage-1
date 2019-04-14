@@ -52,14 +52,15 @@
       <section id="reviews-container">
         <h2>Reviews</h2>
         <a id="add-review">Add Review</a>
+        <p id="review-error">You must enter a value for all fields.</p>
         <form id="add-review-form">
           <div class="row">
             <label for="name">Name:</label>
-            <input type="text" name="name" />
+            <input type="text" name="name" id="review-name" />
           </div>
           <div class="row ratings" id="review-rating-stars">
             <label for="name">Rating:</label>
-            <input type="text" name="rating" hidden />
+            <input type="text" name="rating" id="review-rating" hidden />
             <div class="stars">
               <a href="#" id="rate1" data-value="1">
                 <i class="fa fa-star" aria-hidden="true"></i>
@@ -95,10 +96,10 @@
           </div>
           <div class="row">
             <label for="name">Review:</label>
-            <textarea type="text" name="name"></textarea>
+            <textarea type="text" name="name" id="review-text"></textarea>
           </div>
           <div class="row">
-            <input type="submit" value="Submit Review" />
+            <input id="review-submit" type="submit" value="Submit Review" />
           </div>
         </form>
         <ul id="reviews-list"></ul>

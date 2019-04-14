@@ -55,6 +55,29 @@ export default class DBHelper {
       });
   }
 
+  static addReview(review, callback) {
+    let apiUrl = `${DBHelper.DATABASE_URL}/reviews/`;
+
+    return fetch(apiUrl, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(review),
+    })
+      .then(data => data.json())
+      .then(data => {
+        if (callback) {
+          callback(null, data);
+        }
+      })
+      .catch(e => {
+        const error = `Request failed. Returned status of ${e.status}`;
+        callback(e, null);
+      });
+  }
+
   /**
    * Fetch a restaurant by its ID.
    */
