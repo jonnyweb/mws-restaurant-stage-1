@@ -68,6 +68,7 @@
 #reviews-list {
   margin: 0;
   padding: 0;
+
   li {
     background-color: #fff;
     display: block;
@@ -76,6 +77,11 @@
     padding: 20px;
     overflow: hidden;
     position: relative;
+
+    &.pending {
+      background: rgba(255, 0, 0, 0.1);
+    }
+
     .date {
       font-style: italic;
     }

@@ -72,7 +72,10 @@ self.addEventListener('fetch', function(event) {
       if (request.method !== 'GET') {
         return fetch(request)
           .then(data => data.json())
-          .then(reviewData => updateReview(reviewData));
+          .then(data => updateReview(data))
+          .catch(e => {
+            console.log('YOYOOYOYOYOYOYOYO');
+          });
       }
 
       id = parseInt(cachedUrl.searchParams.get('restaurant_id'));
@@ -140,6 +143,10 @@ function updateReview(reviewData) {
   return dbPromise().then(db => {
     const tx = db.transaction('reviews', 'readwrite');
     const store = tx.objectStore('reviews');
+
+    if (!reviewData.length) {
+      reviewData = [reviewData];
+    }
 
     reviewData.forEach(review => {
       store.put({

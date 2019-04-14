@@ -1,3 +1,5 @@
+import { dbPromise } from './db';
+
 /**
  * Common database helper functions.
  */
@@ -47,7 +49,10 @@ export default class DBHelper {
     })
       .then(data => data.json())
       .then(data => {
-        callback(null, data);
+        const sortedData = data.sort((a, b) =>
+          a.updatedAt > b.updatedAt ? 1 : -1
+        );
+        callback(null, sortedData);
       })
       .catch(e => {
         const error = `Request failed. Returned status of ${e.status}`;
@@ -55,7 +60,7 @@ export default class DBHelper {
       });
   }
 
-  static addReview(review, callback) {
+  static addReview(review, callback, pending = false) {
     let apiUrl = `${DBHelper.DATABASE_URL}/reviews/`;
 
     return fetch(apiUrl, {
@@ -73,8 +78,48 @@ export default class DBHelper {
         }
       })
       .catch(e => {
-        const error = `Request failed. Returned status of ${e.status}`;
+        // Offline - Attempt to add to pending requests
+        if (!pending) {
+          dbPromise()
+            .then(db => {
+              const tx = db.transaction('pending', 'readwrite');
+              tx.objectStore('pending').put({
+                data: {
+                  url: apiUrl,
+                  method: 'POST',
+                  body: JSON.stringify(review),
+                },
+              });
+            })
+            .then(() => {
+              if (callback) {
+                callback(
+                  {
+                    id: null,
+                    createdAt: null,
+                    updatedAt: null,
+                    ...review,
+                  },
+                  true
+                );
+              }
+            });
+        } else {
+          callback(
+            {
+              id: null,
+              createdAt: null,
+              updatedAt: null,
+              ...review,
+            },
+            true
+          );
+        }
       });
+  }
+
+  static addPendingReview(review, callback) {
+    return DBHelper.addReview(review, callback, true);
   }
 
   /**

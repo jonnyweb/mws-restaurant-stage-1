@@ -2,6 +2,8 @@ import DBHelper from '../shared/dbhelper';
 import registerServiceWorker from '../shared/serviceworker';
 import dateformat from 'dateformat';
 
+import { dbPromise } from '../shared/db';
+
 import '../shared/styles.scss';
 import './restaurant.scss';
 
@@ -53,8 +55,8 @@ const initReviewForm = () => {
   // Hide Add review button when clicked
   const reviewButton = document.getElementById('add-review');
   reviewButton.onclick = () => {
-    reviewButton.parentElement.removeChild(reviewButton);
     form.className = '';
+    reviewButton.parentElement.removeChild(reviewButton);
   };
 
   // Handle new review
@@ -86,13 +88,11 @@ const initReviewForm = () => {
   });
 };
 
-const updatePostedReview = review => {
+const updatePostedReview = (review, pending = false) => {
   // Remove Review Form
-  const form = document.getElementById('add-review-form');
-  form.parentElement.removeChild(form);
-
+  document.getElementById('add-review-form').className = 'hidden';
   const ul = document.getElementById('reviews-list');
-  ul.prepend(createReviewHTML(review));
+  ul.prepend(createReviewHTML(review, pending));
 };
 
 /**
@@ -149,9 +149,42 @@ const fetchRestaurantFromURL = callback => {
       if (!reviews) {
         return console.error(error);
       }
+      submitPendingReviews();
       fillReviewsHTML();
     });
   }
+};
+
+const submitPendingReviews = () => {
+  // Try to send pending reviews
+  dbPromise().then(db => {
+    return db
+      .transaction('pending')
+      .objectStore('pending')
+      .openCursor()
+      .then(cursor => {
+        if (!cursor) return;
+
+        const pending = cursor.value;
+        const id = cursor.key;
+        const pendingReview = JSON.parse(pending.data.body);
+
+        return DBHelper.addPendingReview(pendingReview, (review, pending) => {
+          if (review.restaurant_id === self.restaurant.id) {
+            updatePostedReview(review, pending);
+          }
+
+          if (!pending) {
+            dbPromise().then(db => {
+              return db
+                .transaction('pending', 'readwrite')
+                .objectStore('pending')
+                .delete(id);
+            });
+          }
+        });
+      });
+  });
 };
 
 /**
@@ -222,15 +255,22 @@ const fillReviewsHTML = (reviews = self.reviews) => {
 /**
  * Create review HTML and add it to the webpage.
  */
-const createReviewHTML = review => {
+const createReviewHTML = (review, pending = false) => {
   const li = document.createElement('li');
+  if (pending) {
+    li.className = 'pending';
+  }
   const name = document.createElement('h3');
   name.innerHTML = `${review.name}'s Review`;
   li.appendChild(name);
 
   const date = document.createElement('p');
   date.className = 'date';
-  date.innerHTML = dateformat(review.updatedAt, 'yyyy-mm-dd');
+  if (review.updatedAt) {
+    date.innerHTML = dateformat(review.updatedAt, 'yyyy-mm-dd');
+  } else {
+    date.innerHTML = '<span class="pending">Pending...</span>';
+  }
   li.appendChild(date);
 
   const rating = document.createElement('div');

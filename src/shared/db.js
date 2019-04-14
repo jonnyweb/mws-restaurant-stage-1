@@ -10,5 +10,10 @@ export const dbPromise = () =>
           keyPath: 'id',
         });
         reviewStore.createIndex('restaurant_id', 'restaurant_id');
+      case 2:
+        upgradeDB.createObjectStore('pending', {
+          keyPath: 'id',
+          autoIncrement: true,
+        });
     }
   });
