@@ -1,11 +1,12 @@
 import DBHelper from '../shared/dbhelper';
 import registerServiceWorker from '../shared/serviceworker';
 
-import '../styles.scss';
+import '../shared/styles.scss';
+import './index.scss';
 
 document.addEventListener('DOMContentLoaded', () => {
   registerServiceWorker();
-  initMap(); // added
+  initMap();
   fetchNeighborhoods();
   fetchCuisines();
 });
@@ -131,9 +132,30 @@ const createRestaurantHTML = restaurant => {
   image.alt = restaurant.name;
   image.setAttribute('aria-hidden', true);
 
+  const favorite = document.createElement('i');
+  favorite.className = 'favorite fa-heart fas';
+  if (restaurant.is_favorite === 'true') {
+    favorite.className += ' is_favorite';
+  }
+  favorite['data-restaurant-id'] = `restaurant${restaurant.id}`;
+  let favorited = restaurant.is_favorite === 'true';
+
+  favorite.onclick = () => {
+    DBHelper.mapRestaurantAsFavorite(restaurant.id, !favorited, data => {
+      favorited = data.is_favorite === 'true';
+
+      if (!favorited && favorite.className.includes('is_favorite')) {
+        favorite.className = favorite.className.replace('is_favorite', '');
+      } else {
+        favorite.className += ' is_favorite';
+      }
+    });
+  };
+
   const imageContainer = document.createElement('div');
-  imageContainer.className = 'restaurant-img-contianer';
+  imageContainer.className = 'restaurant-img-container';
   imageContainer.append(image);
+  imageContainer.append(favorite);
 
   li.append(imageContainer);
 

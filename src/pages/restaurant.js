@@ -2,7 +2,7 @@ import DBHelper from '../shared/dbhelper';
 import registerServiceWorker from '../shared/serviceworker';
 import dateformat from 'dateformat';
 
-import '../styles.scss';
+import '../shared/styles.scss';
 import './restaurant.scss';
 
 registerServiceWorker();
@@ -127,6 +127,12 @@ const fillReviewsHTML = (reviews = self.reviews) => {
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
+
+  // TODO: Review Button
+  // const button = document.createElement('a');
+  // button.id = 'add-review';
+  // button.innerText = 'Add Review';
+  // container.appendChild(button);
 
   if (!reviews) {
     const noReviews = document.createElement('p');

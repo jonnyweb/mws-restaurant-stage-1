@@ -1,6 +1,6 @@
 import { dbPromise } from '../shared/db';
 
-const staticCacheName = 'mwsr1-static-v4';
+const staticCacheName = 'mwsr1-static-v5';
 
 const urlsToPrefetch = [
   '/',
@@ -9,9 +9,10 @@ const urlsToPrefetch = [
   '/img/icon.png',
   '/img/icon-512.png',
   '/img/missing-image.png',
-  '/assets/app.min.css',
   '/assets/index.bundle.js',
+  '/assets/index.min.css',
   '/assets/restaurant.bundle.js',
+  '/assets/restaurant.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0',
 ];
@@ -63,12 +64,19 @@ self.addEventListener('fetch', function(event) {
   const apiRequest = request.headers.get('Content-Type') === 'application/json';
 
   if (apiRequest) {
+    console.log(request.method);
+
     let id = parseInt(cachedUrl.pathname.split('/')[2]) || -1;
 
     if (cachedUrl.pathname.includes('reviews')) {
       id = parseInt(cachedUrl.searchParams.get('restaurant_id'));
       handleApiReviewRequest(event, id);
     } else {
+      if (request.method !== 'GET') {
+        return fetch(request)
+          .then(data => data.json())
+          .then(restaurantData => updateRestaurant(restaurantData, id));
+      }
       return handleApiRestaurantRequest(event, id);
     }
   } else {
@@ -122,6 +130,18 @@ function handleApiReviewRequest(event, restaurantId) {
   );
 }
 
+function updateRestaurant(restaurantData, restaurantId) {
+  return dbPromise().then(db => {
+    const tx = db.transaction('restaurants', 'readwrite');
+    const store = tx.objectStore('restaurants');
+
+    const restaurants = restaurantId === -1 ? restaurantData : [restaurantData];
+
+    restaurants.forEach(r => store.put({ id: r.id, data: r }));
+    return restaurantData;
+  });
+}
+
 function handleApiRestaurantRequest(event, restaurantId) {
   event.respondWith(
     dbPromise()
@@ -140,18 +160,9 @@ function handleApiRestaurantRequest(event, restaurantId) {
 
         return fetch(event.request)
           .then(data => (data.json && data.json()) || data)
-          .then(restaurantData =>
-            dbPromise().then(db => {
-              const tx = db.transaction('restaurants', 'readwrite');
-              const store = tx.objectStore('restaurants');
-
-              const restaurants =
-                restaurantId === -1 ? restaurantData : [restaurantData];
-
-              restaurants.forEach(r => store.put({ id: r.id, data: r }));
-              return restaurantData;
-            })
-          );
+          .then(restaurantData => {
+            return updateRestaurant(restaurantData, restaurantId);
+          });
       })
       .then(finalResponse => {
         return new Response(JSON.stringify(finalResponse), { status: 200 });

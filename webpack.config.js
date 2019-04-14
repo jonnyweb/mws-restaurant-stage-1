@@ -40,7 +40,7 @@ const assets = {
   },
   plugins: [
     new CleanWebpackPlugin(['public/assets/*', 'public/sw.js*']),
-    new ExtractTextPlugin('app.min.css'),
+    new ExtractTextPlugin('[name].min.css'),
   ],
 };
 

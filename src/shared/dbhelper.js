@@ -174,7 +174,35 @@ export default class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
+    if (!restaurant.photograph) {
+      return `/img/missing-image.png`;
+    }
+
     return `/img/${restaurant.photograph}.jpg`;
+  }
+
+  static mapRestaurantAsFavorite(id, favorite, callback = null) {
+    let apiUrl = `${
+      DBHelper.DATABASE_URL
+    }/restaurants/${id}/?is_favorite=${!!favorite}`;
+
+    return fetch(apiUrl, {
+      method: 'PUT',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(data => data.json())
+      .then(data => {
+        if (callback) {
+          callback(null, data);
+        }
+      })
+      .catch(e => {
+        const error = `Request failed. Returned status of ${e.status}`;
+        callback(error, null);
+      });
   }
 
   /**
