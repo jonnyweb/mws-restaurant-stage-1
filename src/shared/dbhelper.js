@@ -69,12 +69,11 @@ export default class DBHelper {
       .then(data => data.json())
       .then(data => {
         if (callback) {
-          callback(null, data);
+          callback(data);
         }
       })
       .catch(e => {
         const error = `Request failed. Returned status of ${e.status}`;
-        callback(e, null);
       });
   }
 

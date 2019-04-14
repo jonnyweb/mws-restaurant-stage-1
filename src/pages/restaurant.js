@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', event => {
 });
 
 const initReviewForm = () => {
-  const form = document.getElementById('add-review-form');
   const stars = [];
   const starContainer = document.getElementById('review-rating-stars');
 
@@ -80,9 +79,18 @@ const initReviewForm = () => {
       comments: formText.value,
     };
 
-    DBHelper.addReview(review);
+    DBHelper.addReview(review, updatePostedReview);
     return false;
   });
+};
+
+const updatePostedReview = review => {
+  // Remove Review Form
+  const form = document.getElementById('add-review-form');
+  form.parentElement.removeChild(form);
+
+  const ul = document.getElementById('reviews-list');
+  ul.appendChild(createReviewHTML(review));
 };
 
 /**
