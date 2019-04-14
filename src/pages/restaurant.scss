@@ -1,0 +1,264 @@
+#restaurant-name {
+  padding: 10px 0;
+  text-align: center;
+  background: #000;
+
+  color: #f18200;
+  font-size: 1.6em;
+  font-weight: bold;
+  letter-spacing: 0;
+  margin: 5px 0;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+#restaurant-img {
+  width: 100%;
+}
+@media screen and (max-width: 700px) {
+  #restaurant-name {
+    font-size: 1.4em;
+  }
+}
+@media screen and (max-width: 450px) {
+  #restaurant-address {
+    text-align: center;
+  }
+}
+
+#restaurant-address {
+  font-size: 1em;
+  font-weight: bold;
+  margin: 10px 0px;
+}
+#restaurant-cuisine {
+  background-color: #333;
+  color: #ddd;
+  font-size: 12pt;
+  font-weight: 300;
+  letter-spacing: 10px;
+  margin: 5px 0;
+  padding: 2px 0;
+  text-align: center;
+  text-transform: uppercase;
+  width: 100%;
+}
+#restaurant-container,
+#reviews-container {
+  border-bottom: 1px solid #d9d9d9;
+  border-top: 1px solid #fff;
+  padding: 30px 20px 20px;
+  position: relative;
+}
+#reviews-container {
+  padding: 20px;
+  position: relative;
+}
+#reviews-container h2 {
+  color: #f18200;
+  font-size: 24pt;
+  font-weight: bold;
+  letter-spacing: 0px;
+  padding-bottom: 1pt;
+  background: #000;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.6em;
+}
+#reviews-list {
+  margin: 0;
+  padding: 0;
+
+  li {
+    background-color: #fff;
+    display: block;
+    list-style-type: none;
+    margin: 10px 0;
+    padding: 20px;
+    overflow: hidden;
+    position: relative;
+
+    &.pending {
+      background: rgba(255, 0, 0, 0.1);
+    }
+
+    .date {
+      font-style: italic;
+    }
+    .rating {
+      margin-bottom: 10px;
+      .checked {
+        color: #f18200;
+      }
+    }
+    h3 {
+      font-weight: bold;
+      font-size: 1.4em;
+      margin: 0;
+      padding: 0;
+    }
+    p {
+      margin: 0 0 10px;
+    }
+  }
+}
+#restaurant-hours {
+  width: 100%;
+  border-collapse: collapse;
+  caption {
+    background: #000;
+    color: #f18200;
+    font-weight: bold;
+    font-size: 1.2em;
+    padding: 5px;
+    text-transform: uppercase;
+  }
+  tr:nth-child(odd) {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  td {
+    color: #000;
+  }
+}
+
+#add-review {
+  background: #f18200;
+  color: #000;
+  cursor: pointer;
+  display: block;
+  font-size: 0.9em;
+  font-weight: bold;
+  padding: 15px;
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+#review-error {
+  display: none;
+  background: rgba(255, 0, 0, 0.4);
+  color: darkred;
+  border: 1px solid darkred;
+  text-align: center;
+  padding: 5px;
+
+  &.show {
+    display: block;
+  }
+}
+
+form {
+  &.hidden {
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  max-height: 1000px;
+  transition: max-height 1s ease;
+
+  input {
+    padding: 10px;
+    font-size: 1.4em;
+  }
+
+  textarea {
+    padding: 10px;
+    font-size: 1.2em;
+  }
+
+  input[type='submit'] {
+    background: #000;
+    margin: 10px 0;
+    color: #fff;
+  }
+
+  .row {
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+
+    .stars {
+      display: flex;
+      flex-direction: row;
+      font-size: 35px;
+      justify-content: center;
+
+      a {
+        margin: 0 15px;
+      }
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      width: 100%;
+    }
+  }
+
+  .row.ratings {
+    a {
+      cursor: pointer;
+      color: #333;
+    }
+  }
+}
+
+.inside header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+.inside #maincontent {
+  display: flex;
+  flex-direction: column;
+  margin-right: 50%;
+  overflow-y: scroll;
+  margin-top: 130px;
+}
+
+@media screen and (max-width: 550px) {
+  .inside #maincontent {
+    margin-right: 0;
+  }
+}
+
+.inside #map-container {
+  background: blue none repeat scroll 0 0;
+  height: calc(100% - 80px);
+  position: fixed;
+  right: 0;
+  top: 80px;
+  width: 50%;
+  overflow: hidden;
+  z-index: 10;
+}
+
+@media screen and (max-width: 550px) {
+  .inside #map-container {
+    width: 100%;
+    height: 80vh;
+    position: unset;
+  }
+}
+
+.inside #map {
+  background-color: #ccc;
+  height: 100%;
+  width: 100%;
+}
+.inside #footer {
+  width: calc(50% - 50px);
+}
+
+@media screen and (max-width: 550px) {
+  .inside #footer {
+    width: calc(100% - 50px);
+  }
+
+  .inside #footer span,
+  .inside #footer a {
+    display: block;
+  }
+}

@@ -1,3 +1,5 @@
+import { dbPromise } from './db';
+
 /**
  * Common database helper functions.
  */
@@ -7,14 +9,14 @@ export default class DBHelper {
    * Change this to restaurants.json file location on your server.
    */
   static get DATABASE_URL() {
-    return 'http://localhost:1337/restaurants';
+    return 'http://localhost:1337';
   }
 
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback, id = null) {
-    let apiUrl = DBHelper.DATABASE_URL;
+    let apiUrl = `${DBHelper.DATABASE_URL}/restaurants`;
 
     if (id) {
       apiUrl += `/${id}`;
@@ -33,6 +35,91 @@ export default class DBHelper {
         const error = `Request failed. Returned status of ${e.status}`;
         callback(error, null);
       });
+  }
+
+  static fetchReviews(restaurantId, callback) {
+    let apiUrl = `${
+      DBHelper.DATABASE_URL
+    }/reviews/?restaurant_id=${restaurantId}`;
+
+    return fetch(apiUrl, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(data => data.json())
+      .then(data => {
+        const sortedData = data.sort((a, b) =>
+          a.updatedAt > b.updatedAt ? 1 : -1
+        );
+        callback(null, sortedData);
+      })
+      .catch(e => {
+        const error = `Request failed. Returned status of ${e.status}`;
+        callback(e, null);
+      });
+  }
+
+  static addReview(review, callback, pending = false) {
+    let apiUrl = `${DBHelper.DATABASE_URL}/reviews/`;
+
+    return fetch(apiUrl, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(review),
+    })
+      .then(data => data.json())
+      .then(data => {
+        if (callback) {
+          callback(data);
+        }
+      })
+      .catch(e => {
+        // Offline - Attempt to add to pending requests
+        if (!pending) {
+          dbPromise()
+            .then(db => {
+              const tx = db.transaction('pending', 'readwrite');
+              tx.objectStore('pending').put({
+                data: {
+                  url: apiUrl,
+                  method: 'POST',
+                  body: JSON.stringify(review),
+                },
+              });
+            })
+            .then(() => {
+              if (callback) {
+                callback(
+                  {
+                    id: null,
+                    createdAt: null,
+                    updatedAt: null,
+                    ...review,
+                  },
+                  true
+                );
+              }
+            });
+        } else {
+          callback(
+            {
+              id: null,
+              createdAt: null,
+              updatedAt: null,
+              ...review,
+            },
+            true
+          );
+        }
+      });
+  }
+
+  static addPendingReview(review, callback) {
+    return DBHelper.addReview(review, callback, true);
   }
 
   /**
@@ -154,7 +241,35 @@ export default class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
+    if (!restaurant.photograph) {
+      return `/img/missing-image.png`;
+    }
+
     return `/img/${restaurant.photograph}.jpg`;
+  }
+
+  static mapRestaurantAsFavorite(id, favorite, callback = null) {
+    let apiUrl = `${
+      DBHelper.DATABASE_URL
+    }/restaurants/${id}/?is_favorite=${!!favorite}`;
+
+    return fetch(apiUrl, {
+      method: 'PUT',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(data => data.json())
+      .then(data => {
+        if (callback) {
+          callback(null, data);
+        }
+      })
+      .catch(e => {
+        const error = `Request failed. Returned status of ${e.status}`;
+        callback(error, null);
+      });
   }
 
   /**

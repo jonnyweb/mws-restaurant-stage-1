@@ -1,0 +1,200 @@
+@charset "utf-8";
+
+html,
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+body,
+td,
+th,
+p {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.5;
+}
+
+body {
+  width: 100%;
+  background-color: #fdfdfd;
+  margin: 0;
+  position: relative;
+}
+
+ul,
+li {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  color: #333;
+}
+
+a {
+  color: #f18200;
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  color: #f18200;
+  text-decoration: none;
+}
+
+a img {
+  border: none 0px #fff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0 0 20px;
+}
+
+article,
+aside,
+canvas,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+
+.visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+.visually-hidden:focus {
+  display: block;
+  visibility: visible;
+  clip: unset;
+  height: auto;
+  width: auto;
+  position: relative;
+}
+
+#maincontent {
+  background-color: #f3f3f3;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#footer {
+  background-color: #444;
+  color: #b1b1b1;
+  font-size: 0.8em;
+  letter-spacing: 1px;
+  padding: 25px;
+  text-align: center;
+  text-transform: uppercase;
+}
+#footer a,
+#footer a:focus,
+#footer a:hover {
+  color: #fff;
+}
+
+/* ====================== Navigation ====================== */
+nav {
+  width: 100%;
+  background-color: #252831;
+  text-align: center;
+}
+
+header nav {
+  margin: auto;
+  font-size: 20px;
+  display: flex;
+  height: 80px;
+  align-items: center;
+}
+
+header nav h1 {
+  margin: 0;
+  line-height: 1em;
+}
+
+@media screen and (max-width: 450px) {
+  header nav h1 {
+    font-size: 1em;
+    line-height: 1.2em;
+  }
+}
+
+header nav a {
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  margin: 0 auto;
+  transition: color 500ms ease-in-out;
+}
+
+#breadcrumb {
+  display: flex;
+  height: 50px;
+  padding: 0 25px;
+  list-style: none;
+  background-color: #000;
+  margin: 0;
+  width: calc(50% - 50px);
+  align-items: center;
+}
+
+@media screen and (max-width: 550px) {
+  #breadcrumb {
+    width: 100%;
+  }
+}
+
+/* Display list items side by side */
+#breadcrumb li {
+  display: inline;
+  color: #fff;
+}
+
+/* Add a slash symbol (/) before/behind each list item */
+#breadcrumb li + li:before {
+  padding: 8px;
+  color: #fff;
+  content: '/\00a0';
+}
+
+/* Add a color to all links inside the list */
+#breadcrumb li a {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* Add a color on mouse-over */
+#breadcrumb li a:hover {
+  text-decoration: underline;
+}
+/* ====================== Map ====================== */
+#map {
+  height: 400px;
+  width: 100%;
+  background-color: #ccc;
+  overflow: hidden;
+}
+#map a {
+  color: #00709c;
+}

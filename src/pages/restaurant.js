@@ -1,7 +1,11 @@
 import DBHelper from '../shared/dbhelper';
 import registerServiceWorker from '../shared/serviceworker';
+import dateformat from 'dateformat';
 
-import '../styles.scss';
+import { dbPromise } from '../shared/db';
+
+import '../shared/styles.scss';
+import './restaurant.scss';
 
 registerServiceWorker();
 
@@ -10,7 +14,86 @@ registerServiceWorker();
  */
 document.addEventListener('DOMContentLoaded', event => {
   initMap();
+  initReviewForm();
 });
+
+const initReviewForm = () => {
+  const stars = [];
+  const starContainer = document.getElementById('review-rating-stars');
+
+  const form = document.getElementById('add-review-form');
+  const formName = document.getElementById('review-name');
+  const formRating = document.getElementById('review-rating');
+  const formText = document.getElementById('review-text');
+  const formError = document.getElementById('review-error');
+
+  // Add all stars to an array
+  Array.from(starContainer.getElementsByTagName('a')).forEach(star => {
+    stars.push(star);
+  });
+
+  // Set up click listeners for all stars
+  stars.forEach(star => {
+    star.onclick = e => {
+      e.preventDefault();
+      const value = star.dataset.value;
+      formRating.setAttribute('value', value);
+
+      stars.forEach((star, idx) => {
+        if (idx < value) {
+          star.style = 'color: #f18200';
+        } else {
+          star.style = '';
+        }
+      });
+    };
+  });
+
+  // Default to 1 star rating
+  stars[0].dispatchEvent(new Event('click'));
+
+  // Hide Add review button when clicked
+  const reviewButton = document.getElementById('add-review');
+  reviewButton.onclick = () => {
+    form.className = '';
+    reviewButton.parentElement.removeChild(reviewButton);
+  };
+
+  // Handle new review
+  document.getElementById('review-submit').addEventListener('click', e => {
+    e.preventDefault();
+
+    if (!self.restaurant) return;
+
+    const hasFormRating =
+      formRating.value && formRating.value > 0 && formRating.value <= 5;
+
+    // Form has an error
+    if (!formName.value || !formText.value || !hasFormRating) {
+      formError.className = 'show';
+      return false;
+    }
+
+    formError.className = '';
+
+    const review = {
+      restaurant_id: self.restaurant.id,
+      name: formName.value,
+      rating: formRating.value,
+      comments: formText.value,
+    };
+
+    DBHelper.addReview(review, updatePostedReview);
+    return false;
+  });
+};
+
+const updatePostedReview = (review, pending = false) => {
+  // Remove Review Form
+  document.getElementById('add-review-form').className = 'hidden';
+  const ul = document.getElementById('reviews-list');
+  ul.prepend(createReviewHTML(review, pending));
+};
 
 /**
  * Initialize leaflet map
@@ -56,13 +139,52 @@ const fetchRestaurantFromURL = callback => {
     DBHelper.fetchRestaurantById(id, (error, restaurant) => {
       self.restaurant = restaurant;
       if (!restaurant) {
-        console.error(error);
-        return;
+        return console.error(error);
       }
       fillRestaurantHTML();
       callback(null, restaurant);
     });
+    DBHelper.fetchReviews(id, (error, reviews) => {
+      self.reviews = reviews;
+      if (!reviews) {
+        return console.error(error);
+      }
+      submitPendingReviews();
+      fillReviewsHTML();
+    });
   }
+};
+
+const submitPendingReviews = () => {
+  // Try to send pending reviews
+  dbPromise().then(db => {
+    return db
+      .transaction('pending')
+      .objectStore('pending')
+      .openCursor()
+      .then(cursor => {
+        if (!cursor) return;
+
+        const pending = cursor.value;
+        const id = cursor.key;
+        const pendingReview = JSON.parse(pending.data.body);
+
+        return DBHelper.addPendingReview(pendingReview, (review, pending) => {
+          if (review.restaurant_id === self.restaurant.id) {
+            updatePostedReview(review, pending);
+          }
+
+          if (!pending) {
+            dbPromise().then(db => {
+              return db
+                .transaction('pending', 'readwrite')
+                .objectStore('pending')
+                .delete(id);
+            });
+          }
+        });
+      });
+  });
 };
 
 /**
@@ -87,8 +209,6 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
-  // fill reviews
-  fillReviewsHTML();
 };
 
 /**
@@ -116,11 +236,8 @@ const fillRestaurantHoursHTML = (
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+const fillReviewsHTML = (reviews = self.reviews) => {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h2');
-  title.innerHTML = 'Reviews';
-  container.appendChild(title);
 
   if (!reviews) {
     const noReviews = document.createElement('p');
@@ -138,15 +255,22 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 /**
  * Create review HTML and add it to the webpage.
  */
-const createReviewHTML = review => {
+const createReviewHTML = (review, pending = false) => {
   const li = document.createElement('li');
+  if (pending) {
+    li.className = 'pending';
+  }
   const name = document.createElement('h3');
   name.innerHTML = `${review.name}'s Review`;
   li.appendChild(name);
 
   const date = document.createElement('p');
   date.className = 'date';
-  date.innerHTML = review.date;
+  if (review.updatedAt) {
+    date.innerHTML = dateformat(review.updatedAt, 'yyyy-mm-dd');
+  } else {
+    date.innerHTML = '<span class="pending">Pending...</span>';
+  }
   li.appendChild(date);
 
   const rating = document.createElement('div');
