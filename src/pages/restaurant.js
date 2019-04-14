@@ -19,6 +19,7 @@ const initReviewForm = () => {
   const stars = [];
   const starContainer = document.getElementById('review-rating-stars');
 
+  const form = document.getElementById('add-review-form');
   const formName = document.getElementById('review-name');
   const formRating = document.getElementById('review-rating');
   const formText = document.getElementById('review-text');
@@ -53,6 +54,7 @@ const initReviewForm = () => {
   const reviewButton = document.getElementById('add-review');
   reviewButton.onclick = () => {
     reviewButton.parentElement.removeChild(reviewButton);
+    form.className = '';
   };
 
   // Handle new review
@@ -90,7 +92,7 @@ const updatePostedReview = review => {
   form.parentElement.removeChild(form);
 
   const ul = document.getElementById('reviews-list');
-  ul.appendChild(createReviewHTML(review));
+  ul.prepend(createReviewHTML(review));
 };
 
 /**

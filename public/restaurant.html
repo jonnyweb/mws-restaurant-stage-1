@@ -4,6 +4,9 @@
     <title>Restaurant Info</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f18200" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" href="/img/icon.png" />
     <link
       rel="stylesheet"
       src="//normalize-css.googlecode.com/svn/trunk/normalize.css"
@@ -55,11 +58,11 @@
         <p id="review-error">You must enter a value for all fields.</p>
         <form id="add-review-form" class="hidden">
           <div class="row">
-            <label for="name">Name:</label>
+            <label for="review-name">Name:</label>
             <input type="text" name="name" id="review-name" />
           </div>
           <div class="row ratings" id="review-rating-stars">
-            <label for="name">Rating:</label>
+            <label for="review-rating">Rating:</label>
             <input type="text" name="rating" id="review-rating" hidden />
             <div class="stars">
               <a href="#" id="rate1" data-value="1">
@@ -95,7 +98,7 @@
             </div>
           </div>
           <div class="row">
-            <label for="name">Review:</label>
+            <label for="review-text">Review:</label>
             <textarea type="text" name="name" id="review-text"></textarea>
           </div>
           <div class="row">
