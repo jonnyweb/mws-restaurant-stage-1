@@ -4,6 +4,7 @@ import dateformat from 'dateformat';
 
 import '../shared/styles.scss';
 import './restaurant.scss';
+import { format } from 'util';
 
 registerServiceWorker();
 
@@ -12,7 +13,51 @@ registerServiceWorker();
  */
 document.addEventListener('DOMContentLoaded', event => {
   initMap();
+  initReviewForm();
 });
+
+const initReviewForm = () => {
+  const form = document.getElementById('add-review-form');
+  const stars = [];
+  const starContainer = document.getElementById('review-rating-stars');
+  const starInput = starContainer.getElementsByTagName('input')[0];
+
+  Array.from(starContainer.getElementsByTagName('a')).forEach(star => {
+    stars.push(star);
+  });
+
+  stars.forEach(star => {
+    star.onclick = e => {
+      e.preventDefault();
+      const value = star.dataset.value;
+      starInput.setAttribute('value', value);
+
+      stars.forEach((star, idx) => {
+        if (idx < value) {
+          star.style = 'color: #f18200';
+        } else {
+          star.style = '';
+        }
+      });
+    };
+  });
+
+  const reviewButton = document.getElementById('add-review');
+  let toggle = false;
+  reviewButton.onclick = () => {
+    toggle = !toggle;
+
+    if (!toggle) {
+      form.className = 'hidden';
+    } else {
+      form.className = '';
+    }
+  };
+
+  form.onsubmit = e => {
+    e.preventDefault();
+  };
+};
 
 /**
  * Initialize leaflet map
@@ -124,15 +169,6 @@ const fillRestaurantHoursHTML = (
  */
 const fillReviewsHTML = (reviews = self.reviews) => {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h2');
-  title.innerHTML = 'Reviews';
-  container.appendChild(title);
-
-  // TODO: Review Button
-  // const button = document.createElement('a');
-  // button.id = 'add-review';
-  // button.innerText = 'Add Review';
-  // container.appendChild(button);
 
   if (!reviews) {
     const noReviews = document.createElement('p');

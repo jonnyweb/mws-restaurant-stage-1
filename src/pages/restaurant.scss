@@ -68,51 +68,51 @@
 #reviews-list {
   margin: 0;
   padding: 0;
-}
-#reviews-list li {
-  background-color: #fff;
-  display: block;
-  list-style-type: none;
-  margin: 10px 0;
-  padding: 20px;
-  overflow: hidden;
-  position: relative;
-}
-#reviews-list li .date {
-  font-style: italic;
-}
-#reviews-list li .rating {
-  margin-bottom: 10px;
-}
-#reviews-list li .rating .checked {
-  color: #f18200;
-}
-#reviews-list li h3 {
-  font-weight: bold;
-  font-size: 1.4em;
-  margin: 0;
-  padding: 0;
-}
-#reviews-list li p {
-  margin: 0 0 10px;
+  li {
+    background-color: #fff;
+    display: block;
+    list-style-type: none;
+    margin: 10px 0;
+    padding: 20px;
+    overflow: hidden;
+    position: relative;
+    .date {
+      font-style: italic;
+    }
+    .rating {
+      margin-bottom: 10px;
+      .checked {
+        color: #f18200;
+      }
+    }
+    h3 {
+      font-weight: bold;
+      font-size: 1.4em;
+      margin: 0;
+      padding: 0;
+    }
+    p {
+      margin: 0 0 10px;
+    }
+  }
 }
 #restaurant-hours {
   width: 100%;
   border-collapse: collapse;
-}
-#restaurant-hours caption {
-  background: #000;
-  color: #f18200;
-  font-weight: bold;
-  font-size: 1.2em;
-  padding: 5px;
-  text-transform: uppercase;
-}
-#restaurant-hours tr:nth-child(odd) {
-  background: rgba(0, 0, 0, 0.1);
-}
-#restaurant-hours td {
-  color: #666;
+  caption {
+    background: #000;
+    color: #f18200;
+    font-weight: bold;
+    font-size: 1.2em;
+    padding: 5px;
+    text-transform: uppercase;
+  }
+  tr:nth-child(odd) {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  td {
+    color: #666;
+  }
 }
 
 #add-review {
@@ -125,6 +125,64 @@
   padding: 15px;
   text-align: center;
   text-transform: uppercase;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+form {
+  &.hidden {
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  max-height: 1000px;
+  transition: max-height 1s ease;
+
+  input {
+    padding: 10px;
+    font-size: 1.4em;
+  }
+
+  textarea {
+    padding: 10px;
+    font-size: 1.2em;
+  }
+
+  input[type='submit'] {
+    background: #000;
+    margin: 10px 0;
+    color: #fff;
+  }
+
+  .row {
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+
+    .stars {
+      display: flex;
+      flex-direction: row;
+      font-size: 35px;
+      justify-content: center;
+
+      a {
+        margin: 0 15px;
+      }
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      width: 100%;
+    }
+  }
+
+  .row.ratings {
+    a {
+      cursor: pointer;
+      color: #333;
+    }
+  }
 }
 
 .inside header {
